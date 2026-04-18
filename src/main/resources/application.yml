@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+
+cloudinary:
+  cloud-name: dob2ugstu
+  api-key: 625137486171474
+  api-secret: hlZB1A1gS9P5Z8d8YI_U_8nx6uk
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/nlu_echo?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
+    username: root
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  jwt:
+    secret: nlu_echo_by_phuc_lam
+    access-token-expiration: 3600000       # 1 giờ
+    refresh-token-expiration: 604800000    # 7 ngày
