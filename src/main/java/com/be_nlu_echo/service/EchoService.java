@@ -2,21 +2,19 @@ package com.be_nlu_echo.service;
 
 import com.be_nlu_echo.dto.request.MediaRequest;
 import com.be_nlu_echo.dto.request.RequestCreateEcho;
-import com.be_nlu_echo.dto.respone.CreateEchoResponse;
-import com.be_nlu_echo.dto.respone.EchoListItemResponse;
-import com.be_nlu_echo.dto.respone.MediaResponse;
+import com.be_nlu_echo.dto.respone.*;
 import com.be_nlu_echo.entity.Echo;
 import com.be_nlu_echo.entity.EchoMedia;
 import com.be_nlu_echo.entity.User;
-import com.be_nlu_echo.enums.EchoStatus;
-import com.be_nlu_echo.enums.MediaType;
-import com.be_nlu_echo.enums.Visibility;
+import com.be_nlu_echo.enums.*;
+import com.be_nlu_echo.exception.AppException;
 import com.be_nlu_echo.repository.EchoMediaRepository;
 import com.be_nlu_echo.repository.EchoRepository;
 import com.be_nlu_echo.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -194,5 +192,104 @@ public class EchoService {
         }
 
         return content.substring(0, CONTENT_PREVIEW_LIMIT).trim() + "...";
+    }
+
+
+    public List<EchoPreviewResponse> getEchoPreviews(Double latitude, Double longitude, int page, int limit) {
+
+        List<EchoPreviewProjection>  projections = echoRepository.getEchoPreviews(
+                latitude,
+                longitude,
+                EchoStatus.ACTIVE.name(),
+                Visibility.PUBLIC.name(),
+                PageRequest.of(page, limit)
+        ).getContent();
+        for (EchoPreviewProjection p : projections) {
+            System.out.println("Echo ID: " + p.getId() + ", Distance: " + p.getDistance() + " km " + p.getAnonymous() + " " + p.getCapsule());
+        }
+
+        return projections.stream()
+                .map(p -> EchoPreviewResponse.builder()
+                        .id(p.getId())
+                        .title(p.getTitle())
+                        .echoType(EchoType.valueOf(p.getEchoType()))
+                        .distance(p.getDistance())
+                        .likeCount(p.getLikeCount())
+                        .commentCount(p.getCommentCount())
+                        .anonymous(p.getAnonymous())
+                        .capsule(p.getCapsule())
+                        .unlockTime(p.getUnlockTime())
+                        .mode(resolveEchoMode(p.getAnonymous()
+                                , p.getCapsule()))
+                        .unlockRadiusM(p.getUnlockRadiusM())
+                        .longitude(p.getLongitude())
+                        .latitude(p.getLatitude())
+                        .build())
+                .toList();
+    }
+
+    private EchoMode resolveEchoMode(Boolean anonymous, Boolean capsule) {
+        if (Boolean.TRUE.equals(anonymous)) {
+            return EchoMode.GHOST;
+        }
+        if (Boolean.TRUE.equals(capsule)) {
+            return EchoMode.CAPSULE;
+        }
+        return EchoMode.NORMAL;
+    }
+
+    public EchoDetailResponse getEchoDetail(Long id) {
+        Echo echo = echoRepository.findById(id)
+                .orElseThrow(() ->
+                        new AppException("Echo not found with id: " + id,StatusCode.NOT_FOUND));
+
+        UserResponse user = UserResponse.builder()
+                .id(echo.getUser().getId())
+                .name(echo.getUser().getFullName())
+                .avatarUrl(echo.getUser().getAvatarUrl())
+                .build();
+
+        List<CommentResponse> comments = echo.getComments() != null
+                ? echo.getComments().stream()
+                .map(c -> CommentResponse.builder()
+                        .id(c.getId())
+                        .content(c.getContent())
+                        .user(user)
+                        .createdAt(c.getCreatedAt())
+                        .build())
+                .toList()
+                : List.of();
+
+        List<EchoMediaResponse> media = echo.getMediaList() != null
+                ? echo.getMediaList().stream()
+                .map(m -> EchoMediaResponse.builder()
+                        .id(m.getId())
+                        .mediaType(m.getMediaType())
+                        .mediaUrl(m.getMediaUrl())
+                        .width(m.getWidth())
+                        .height(m.getHeight())
+                        .durationSeconds(m.getDurationSeconds())
+                        .build())
+                .toList()
+                : List.of();
+
+
+            return EchoDetailResponse.builder()
+                    .id(echo.getId())
+                    .title(echo.getTitle())
+                    .description(echo.getContent())
+                    .locationName(echo.getLocationName())
+                    .anonymous(echo.isAnonymous())
+                    .capsule(echo.isCapsule())
+                    .unlockTime(echo.getUnlockAt())
+                    .likeCount(echo.getLikeCount())
+                    .unlockCount(echo.getUnlockCount())
+                    .commentsCount(echo.getCommentCount())
+                    .comments(comments)
+                    .media(media)
+                    .user(user)
+                    .createdAt(echo.getCreatedAt())
+                    .build();
+
     }
 }
