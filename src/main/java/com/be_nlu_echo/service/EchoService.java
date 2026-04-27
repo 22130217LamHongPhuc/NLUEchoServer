@@ -1,16 +1,16 @@
 package com.be_nlu_echo.service;
 
+import com.be_nlu_echo.dto.request.CommentRequest;
 import com.be_nlu_echo.dto.request.MediaRequest;
 import com.be_nlu_echo.dto.request.RequestCreateEcho;
 import com.be_nlu_echo.dto.respone.*;
+import com.be_nlu_echo.entity.Comment;
 import com.be_nlu_echo.entity.Echo;
 import com.be_nlu_echo.entity.EchoMedia;
 import com.be_nlu_echo.entity.User;
 import com.be_nlu_echo.enums.*;
 import com.be_nlu_echo.exception.AppException;
-import com.be_nlu_echo.repository.EchoMediaRepository;
-import com.be_nlu_echo.repository.EchoRepository;
-import com.be_nlu_echo.repository.UserRepository;
+import com.be_nlu_echo.repository.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +32,8 @@ public class EchoService {
     EchoRepository echoRepository;
     EchoMediaRepository echoMediaRepository;
     UserRepository userRepository;
+    LikeRepository likeRepository;
+    CommentRepository commentRepository;
 
     public List<EchoListItemResponse> getAllEchos() {
         return echoRepository.findFeedEchos(EchoStatus.ACTIVE, Visibility.PUBLIC)
@@ -238,7 +240,7 @@ public class EchoService {
         return EchoMode.NORMAL;
     }
 
-    public EchoDetailResponse getEchoDetail(Long id) {
+    public EchoDetailResponse getEchoDetail(Long id,Long userId) {
         Echo echo = echoRepository.findById(id)
                 .orElseThrow(() ->
                         new AppException("Echo not found with id: " + id,StatusCode.NOT_FOUND));
@@ -249,16 +251,6 @@ public class EchoService {
                 .avatarUrl(echo.getUser().getAvatarUrl())
                 .build();
 
-        List<CommentResponse> comments = echo.getComments() != null
-                ? echo.getComments().stream()
-                .map(c -> CommentResponse.builder()
-                        .id(c.getId())
-                        .content(c.getContent())
-                        .user(user)
-                        .createdAt(c.getCreatedAt())
-                        .build())
-                .toList()
-                : List.of();
 
         List<EchoMediaResponse> media = echo.getMediaList() != null
                 ? echo.getMediaList().stream()
@@ -273,6 +265,7 @@ public class EchoService {
                 .toList()
                 : List.of();
 
+        boolean isLike = likeRepository.existsByEchoIdAndUserId(id, userId);
 
             return EchoDetailResponse.builder()
                     .id(echo.getId())
@@ -285,11 +278,51 @@ public class EchoService {
                     .likeCount(echo.getLikeCount())
                     .unlockCount(echo.getUnlockCount())
                     .commentsCount(echo.getCommentCount())
-                    .comments(comments)
                     .media(media)
                     .user(user)
+                    .isLike(isLike)
                     .createdAt(echo.getCreatedAt())
                     .build();
 
+    }
+
+    public Echo getEchoById(Long id) {
+        return echoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Echo not found with id: " + id));
+    }
+
+    public CommentResponse commentForEcho(Long id, CommentRequest request) {
+
+        Echo echo = echoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Echo not found with id: " + id));
+
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + request.getUserId()));
+
+        Comment comment = Comment.builder()
+                .content(request.getContent())
+                .echo(echo)
+                .user(user)
+                .status(CommentStatus.ACTIVE)
+
+                .build();
+
+        commentRepository.save(comment);
+
+        return toResponse(comment);
+
+    }
+
+    private CommentResponse toResponse(Comment comment) {
+        return CommentResponse.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .user(UserResponse.builder()
+                        .id(comment.getUser().getId())
+                        .name(comment.getUser().getFullName())
+                        .avatarUrl(comment.getUser().getAvatarUrl())
+                        .build())
+                .createdAt(comment.getCreatedAt())
+                .build();
     }
 }

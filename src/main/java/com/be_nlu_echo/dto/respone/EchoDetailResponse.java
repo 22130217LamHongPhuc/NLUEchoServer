@@ -24,6 +24,6 @@ public class EchoDetailResponse {
     UserResponse user;
     List<EchoMediaResponse> media;
     List<CommentResponse> comments;
-
+    boolean isLike;
     LocalDateTime createdAt;
 }
