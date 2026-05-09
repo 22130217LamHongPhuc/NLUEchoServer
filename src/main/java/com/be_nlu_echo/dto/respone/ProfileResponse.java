@@ -1,19 +1,16 @@
 package com.be_nlu_echo.dto.respone;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
-@Data
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class MyProfileResponse {
+public class ProfileResponse {
     private Long id;
     private String studentCode;
     private String fullName;

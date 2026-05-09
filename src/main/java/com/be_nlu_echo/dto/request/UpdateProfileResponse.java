@@ -3,12 +3,10 @@ package com.be_nlu_echo.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
-public class UpdateProfileRequest {
+public class UpdateProfileResponse {
     String fullName;
     String faculty;
     String bio;

@@ -26,10 +26,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(
-    name = "echo_unlocks",
-    uniqueConstraints = {
-        @UniqueConstraint(name = "uq_echo_unlocks_echo_user", columnNames = {"echo_id", "user_id"})
-    }
+    name = "echo_unlocks"
 )
 public class EchoUnlock {
 

@@ -50,7 +50,7 @@ public interface EchoRepository extends JpaRepository<Echo, Long> {
     FROM echoes e
     WHERE e.status = :status
       AND e.visibility = :visibility
-    ORDER BY e.created_at DESC
+    ORDER BY distance ASC
     """, nativeQuery = true)
 	Slice<EchoPreviewProjection> getEchoPreviews(
 			@Param("userLat") double userLat,
@@ -59,4 +59,11 @@ public interface EchoRepository extends JpaRepository<Echo, Long> {
 			@Param("visibility") String visibility,
 			Pageable pageable
 	);
+
+	@Query("""
+			SELECT COUNT(DISTINCT e.id)
+						FROM Echo e
+						WHERE e.user.id = :userId
+			""")
+    long countCreatedEchoByUserId(Long userId);
 }

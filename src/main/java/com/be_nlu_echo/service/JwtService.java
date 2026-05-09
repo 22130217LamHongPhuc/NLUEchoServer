@@ -17,7 +17,7 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(user.getUsername()) // email
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((System.currentTimeMillis() + 1000 * 60 * 24))) // 15 phút
+                .setExpiration(new Date((System.currentTimeMillis() + 1000 * 60 * 60*24*5))) // 15 phút
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

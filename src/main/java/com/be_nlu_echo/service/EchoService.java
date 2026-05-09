@@ -34,6 +34,7 @@ public class EchoService {
     UserRepository userRepository;
     LikeRepository likeRepository;
     CommentRepository commentRepository;
+    EchoUnLockRepository echoUnLockRepository;
 
     public List<EchoListItemResponse> getAllEchos() {
         return echoRepository.findFeedEchos(EchoStatus.ACTIVE, Visibility.PUBLIC)
@@ -325,4 +326,22 @@ public class EchoService {
                 .createdAt(comment.getCreatedAt())
                 .build();
     }
+
+    public EchoHistorySummaryResponse getEchoHistorySummary(Long userId) {
+        long totalExploredEchoes = echoUnLockRepository.countDistinctUnlockedEchoes(userId);
+        long totalLikedEchoes = likeRepository.countLikedEchoesByUserId(userId);
+        long totalCreateEchos = echoRepository.countCreatedEchoByUserId(userId);
+
+        EchoHistorySummaryResponse response = new EchoHistorySummaryResponse();
+        response.setTotalExploredEchoes(totalExploredEchoes);
+        response.setTotalLikedEchoes(totalLikedEchoes);
+        response.setTotalCreateEchos(totalCreateEchos);
+
+        return response;
+
+
+
+    }
+
+
 }

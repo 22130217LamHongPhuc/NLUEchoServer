@@ -9,7 +9,6 @@ import com.be_nlu_echo.exception.AppException;
 import com.be_nlu_echo.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,11 +17,9 @@ public class UserProfileService {
 
     private final UserRepository userRepository;
 
-    public MyProfileResponse getMyProfile(Authentication authentication) {
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    public MyProfileResponse getMyProfile(Long userId) {
 
-        assert userDetails != null;
-        User user = userRepository.findById(userDetails.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(
                         "User not found",
                         StatusCode.USER_NOT_FOUND
@@ -33,34 +30,48 @@ public class UserProfileService {
 
     @Transactional
     public MyProfileResponse updateMyProfile(
-            Authentication authentication,
+            Long userId,
             UpdateProfileRequest request
     ) {
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        assert userDetails != null;
-        User user = userRepository.findById(userDetails.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if(request.getFullName().isEmpty()){
+            throw new AppException("Full name and student code cannot be empty", StatusCode.INVALID_INPUT);
+        }
+
+        if(request.getFullName().equals(user.getFullName()) && request.getStudentCode().equals(user.getStudentCode())
+                && request.getFaculty().equals(user.getFaculty()) && request.getBio().equals(user.getBio())
+                && request.getAvatarUrl().equals(user.getAvatarUrl())){
+            return mapToMyProfileResponse(user);
+        }
 
         user.setFullName(request.getFullName());
         user.setFaculty(request.getFaculty());
         user.setBio(request.getBio());
+        user.setStudentCode(request.getStudentCode());
+        user.setAvatarUrl(request.getAvatarUrl());
+
+        userRepository.save(user);
 
         return mapToMyProfileResponse(user);
     }
 
-    private MyProfileResponse mapToMyProfileResponse(User user) {
-
-        MyProfileResponse profile =  MyProfileResponse.builder()
+    public MyProfileResponse mapToMyProfileResponse(User user) {
+        return MyProfileResponse.builder()
                 .id(user.getId())
                 .studentCode(user.getStudentCode())
                 .fullName(user.getFullName())
+                .email(user.getEmail())
                 .avatarUrl(user.getAvatarUrl())
                 .faculty(user.getFaculty())
                 .bio(user.getBio())
-                .email(user.getEmail())
+                .emailVerified(user.isEmailVerified())
+                .defaultGhostMode(user.isDefaultGhostMode())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .build();
-        return profile;
     }
 
     private UserProfileResponse mapToUserProfileResponse(User user) {

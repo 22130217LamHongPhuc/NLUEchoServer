@@ -45,18 +45,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             username = jwtService.extractUsername(token);
 
         } catch (JwtException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
 
-            ApiResponse<Object> apiResponse = new ApiResponse<>(
-                    false,
-                    StatusCode.INVALID_TOKEN,
-                    "Token expired",
-                    null
-            );
+                ApiResponse<Object> apiResponse = new ApiResponse<>(
+                        false,
+                        StatusCode.INVALID_TOKEN,
+                        "Token expired",
+                        null
+                );
 
-            response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
-            return;
+                response.getWriter().write(new ObjectMapper().writeValueAsString(apiResponse));
+                return;
         }
         if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
