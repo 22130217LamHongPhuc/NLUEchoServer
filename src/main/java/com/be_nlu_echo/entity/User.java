@@ -20,6 +20,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +32,11 @@ import java.util.List;
 @Builder
 @Entity
 @Table(
-    name = "users",
-    uniqueConstraints = {
-        @UniqueConstraint(name = "uq_users_student_code", columnNames = "student_code"),
-        @UniqueConstraint(name = "uq_users_email", columnNames = "email")
-    }
+        name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uq_users_student_code", columnNames = "student_code"),
+                @UniqueConstraint(name = "uq_users_email", columnNames = "email")
+        }
 )
 public class User {
 
@@ -43,7 +44,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "student_code", nullable = false, length = 20)
+
+    @Column(name = "student_code", length = 20)
     private String studentCode;
 
     @Column(name = "full_name", nullable = false, length = 100)
@@ -77,6 +79,23 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, columnDefinition = "ENUM('ACTIVE','BLOCKED','DELETED')")
     private UserStatus status;
+
+
+
+    @Builder.Default
+    @Column(name = "total_xp", nullable = false)
+    private Integer totalXp = 0;
+
+    @Builder.Default
+    @Column(name = "coins", nullable = false)
+    private Integer coins = 0;
+
+    @Builder.Default
+    @Column(name = "streak_days", nullable = false)
+    private Integer streakDays = 0;
+
+    @Column(name = "last_active_date")
+    private LocalDate lastActiveDate;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -126,8 +145,53 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Notification> notifications = new ArrayList<>();
 
+    public void addXp(int amount) {
+        if (amount <= 0) {
+            return;
+        }
 
-    // write to string for user
+        if (this.totalXp == null) {
+            this.totalXp = 0;
+        }
+
+        this.totalXp += amount;
+    }
+
+    public void addCoins(int amount) {
+        if (amount <= 0) {
+            return;
+        }
+
+        if (this.coins == null) {
+            this.coins = 0;
+        }
+
+        this.coins += amount;
+    }
+
+    public void updateStreak(LocalDate today) {
+        if (today == null) {
+            today = LocalDate.now();
+        }
+
+        if (this.lastActiveDate == null) {
+            this.streakDays = 1;
+            this.lastActiveDate = today;
+            return;
+        }
+
+        if (this.lastActiveDate.isEqual(today)) {
+            return;
+        }
+
+        if (this.lastActiveDate.plusDays(1).isEqual(today)) {
+            this.streakDays = this.streakDays == null ? 1 : this.streakDays + 1;
+        } else {
+            this.streakDays = 1;
+        }
+
+        this.lastActiveDate = today;
+    }
 
     @Override
     public String toString() {
@@ -136,7 +200,6 @@ public class User {
                 ", studentCode='" + studentCode + '\'' +
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
-                ", passwordHash='" + passwordHash + '\'' +
                 ", avatarUrl='" + avatarUrl + '\'' +
                 ", faculty='" + faculty + '\'' +
                 ", bio='" + bio + '\'' +
@@ -144,19 +207,12 @@ public class User {
                 ", defaultGhostMode=" + defaultGhostMode +
                 ", authProvider=" + authProvider +
                 ", status=" + status +
+                ", totalXp=" + totalXp +
+                ", coins=" + coins +
+                ", streakDays=" + streakDays +
+                ", lastActiveDate=" + lastActiveDate +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", refreshTokens=" + refreshTokens +
-                ", emailVerifications=" + emailVerifications +
-                ", passwordResetTokens=" + passwordResetTokens +
-                ", echoes=" + echoes +
-                ", comments=" + comments +
-                ", likes=" + likes +
-                ", followingRelations=" + followingRelations +
-                ", followerRelations=" + followerRelations +
-                ", echoUnlocks=" + echoUnlocks +
-                ", notifications=" + notifications +
                 '}';
     }
 }
-

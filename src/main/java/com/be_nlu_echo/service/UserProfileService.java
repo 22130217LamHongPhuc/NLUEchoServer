@@ -75,6 +75,7 @@ public class UserProfileService {
     }
 
     private UserProfileResponse mapToUserProfileResponse(User user) {
+
         return UserProfileResponse.builder()
                 .id(user.getId())
                 .studentCode(user.getStudentCode())
@@ -83,6 +84,7 @@ public class UserProfileService {
                 .faculty(user.getFaculty())
                 .bio(user.getBio())
                 .build();
+
     }
 
     public UserProfileResponse getUserProfile(Long id) {

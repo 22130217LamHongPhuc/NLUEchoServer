@@ -207,9 +207,7 @@ public class EchoService {
                 Visibility.PUBLIC.name(),
                 PageRequest.of(page, limit)
         ).getContent();
-        for (EchoPreviewProjection p : projections) {
-            System.out.println("Echo ID: " + p.getId() + ", Distance: " + p.getDistance() + " km " + p.getAnonymous() + " " + p.getCapsule());
-        }
+
 
         return projections.stream()
                 .map(p -> EchoPreviewResponse.builder()

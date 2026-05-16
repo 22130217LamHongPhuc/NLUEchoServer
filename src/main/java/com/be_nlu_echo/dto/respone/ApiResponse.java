@@ -1,6 +1,7 @@
 package com.be_nlu_echo.dto.respone;
 
 import com.be_nlu_echo.enums.StatusCode;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
