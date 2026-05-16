@@ -40,7 +40,7 @@ public class EchoUnlockController {
                 @PathVariable Long echoId,
                 @AuthenticationPrincipal CustomUserDetails userDetails
         ) {
-            boolean unlocked = echoUnlockService.unlockEcho(echoId, userDetails.getUserId());
+            boolean unlocked = echoUnlockService.unlockEcho(echoId, userDetails.getUserId(),userDetails.getUser());
 
             return ResponseEntity.ok(
                     new ApiResponse<>(

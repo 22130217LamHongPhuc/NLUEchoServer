@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     long countDistinctEchoIdByUserId(Long userId);
 
+    long countByUser_Id(Long userId);
 }

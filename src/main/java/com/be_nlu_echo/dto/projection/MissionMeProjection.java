@@ -1,7 +1,7 @@
 package com.be_nlu_echo.dto.projection;
 
 import com.be_nlu_echo.enums.MissionCategory;
-import com.be_nlu_echo.enums.MissionStatus;
+import com.be_nlu_echo.enums.UserMissionStatus;
 
 import java.time.LocalDateTime;
 
@@ -11,8 +11,10 @@ public interface MissionMeProjection {
 
     String getTitle();
     String getDescription();
+
     MissionCategory getCategory();
     String getType();
+    String getEventType();
     String getIcon();
 
     Integer getTargetValue();
@@ -20,7 +22,7 @@ public interface MissionMeProjection {
     Integer getRewardCoin();
 
     Integer getProgress();
-    MissionStatus getStatus();
+    UserMissionStatus getStatus();
 
     LocalDateTime getCompletedAt();
     LocalDateTime getClaimedAt();

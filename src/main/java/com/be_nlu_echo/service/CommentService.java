@@ -7,6 +7,7 @@ import com.be_nlu_echo.entity.Comment;
 import com.be_nlu_echo.entity.Echo;
 import com.be_nlu_echo.entity.User;
 import com.be_nlu_echo.enums.CommentStatus;
+import com.be_nlu_echo.enums.MissionEventType;
 import com.be_nlu_echo.repository.CommentRepository;
 import com.be_nlu_echo.repository.EchoRepository;
 import com.be_nlu_echo.repository.UserRepository;
@@ -24,6 +25,7 @@ public class CommentService {
     UserRepository userRepository;
     EchoRepository echoRepository;
     CommentRepository commentRepository;
+    MissionService missionService;
 
     public List<CommentResponse> getCommentsByEchoId(Long echoId) {
         Echo echo = echoRepository.findById(echoId)
@@ -49,6 +51,9 @@ public class CommentService {
                 .build();
 
         commentRepository.save(comment);
+
+        missionService.handleEvent(MissionEventType.ECHO_COMMENTED,user);
+
 
         return toResponse(comment);
     }

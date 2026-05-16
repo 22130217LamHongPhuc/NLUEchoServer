@@ -6,10 +6,12 @@ import com.be_nlu_echo.dto.respone.ApiResponse;
 import com.be_nlu_echo.dto.respone.CommentResponse;
 import com.be_nlu_echo.enums.StatusCode;
 import com.be_nlu_echo.service.CommentService;
+import com.be_nlu_echo.service.CustomUserDetails;
 import com.be_nlu_echo.service.EchoService;
 import com.be_nlu_echo.service.LikeService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,7 +43,9 @@ public class EchoCommentController {
     @PostMapping
     public ResponseEntity<ApiResponse<CommentResponse>> createComment(
             @PathVariable Long echoId,
-            @RequestBody CommentRequest request
+            @RequestBody CommentRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+
     ) {
         CommentResponse comment = commentService.createComment(echoId, request);
 

@@ -5,5 +5,6 @@ public enum MissionCategory {
     EXPLORATION,
     CREATE,
     CAPSULE,
-    ACHIEVEMENT
+    ACHIEVEMENT,
+    SOCIAL
 }

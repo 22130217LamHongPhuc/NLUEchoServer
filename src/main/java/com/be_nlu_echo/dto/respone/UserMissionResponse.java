@@ -26,6 +26,7 @@ public class UserMissionResponse {
 
     private Integer progress;
     private Integer targetValue;
+    private Integer progressPercent;
 
     private Integer rewardXp;
     private Integer rewardCoin;

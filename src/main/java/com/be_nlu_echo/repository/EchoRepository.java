@@ -66,4 +66,6 @@ public interface EchoRepository extends JpaRepository<Echo, Long> {
 						WHERE e.user.id = :userId
 			""")
     long countCreatedEchoByUserId(Long userId);
+
+	long countByUser_IdAndCapsule(Long userId, boolean isCapsule);
 }

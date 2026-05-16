@@ -1,6 +1,8 @@
 package com.be_nlu_echo.entity;
 
+import com.be_nlu_echo.enums.StatusCode;
 import com.be_nlu_echo.enums.UserMissionStatus;
+import com.be_nlu_echo.exception.AppException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -93,7 +95,7 @@ public class UserMission {
 
     public void claim() {
         if (status != UserMissionStatus.COMPLETED) {
-            throw new IllegalStateException("Mission is not completed yet");
+            throw new AppException("Mission is not completed yet", StatusCode.INVALID_STATUS);
         }
 
         this.status = UserMissionStatus.CLAIMED;

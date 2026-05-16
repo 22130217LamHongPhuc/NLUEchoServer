@@ -50,8 +50,7 @@ public class MissionController {
 
             ) {
 
-        MissionCategory missionCategory = MissionCategory.valueOf(category.toUpperCase());
-        SliceResponse<UserMissionResponse> response = missionService.getMyMissionByCategory(userDetails.getUserId(),page,limit,missionCategory);
+        SliceResponse<UserMissionResponse> response = missionService.getMyMissionByCategory(userDetails.getUserId(),page,limit,category);
 
         return ResponseEntity.ok(
                 new ApiResponse<>(
@@ -62,6 +61,24 @@ public class MissionController {
                 )
         );
     }
+
+    @PostMapping("/{missionId}/claim")
+    public ResponseEntity<ApiResponse<Boolean>> claimMissionReward(
+            @PathVariable Long missionId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        boolean result = missionService.claimMissionReward(userDetails.getUser(), missionId);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        StatusCode.SUCCESS,
+                        "Mission reward claimed successfully",
+                        result
+                )
+        );
+    }
+
 
 
 }

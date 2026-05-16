@@ -6,6 +6,7 @@ import com.be_nlu_echo.dto.respone.MediaResponse;
 import com.be_nlu_echo.entity.Echo;
 import com.be_nlu_echo.entity.EchoUnlock;
 import com.be_nlu_echo.entity.User;
+import com.be_nlu_echo.enums.MissionEventType;
 import com.be_nlu_echo.repository.EchoUnLockRepository;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,9 +19,10 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(makeFinal = true,level = lombok.AccessLevel.PRIVATE)
 public class EchoUnlockService {
-    private final EchoUnLockRepository echoUnLockRepository;
+     EchoUnLockRepository echoUnLockRepository;
+     MissionService missionService;
 
-    public boolean unlockEcho(Long echoId, Long userId) {
+    public boolean unlockEcho(Long echoId, Long userId,User user) {
 
         boolean existed = echoUnLockRepository.existsByEcho_IdAndUser_Id(
                 echoId,
@@ -38,6 +40,8 @@ public class EchoUnlockService {
                 .build();
 
         echoUnLockRepository.save(unlock);
+
+        missionService.handleEvent(MissionEventType.ECHO_UNLOCKED,user);
 
         return true;
     }

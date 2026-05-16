@@ -35,6 +35,7 @@ public class EchoService {
     LikeRepository likeRepository;
     CommentRepository commentRepository;
     EchoUnLockRepository echoUnLockRepository;
+    MissionService missionService;
 
     public List<EchoListItemResponse> getAllEchos() {
         return echoRepository.findFeedEchos(EchoStatus.ACTIVE, Visibility.PUBLIC)
@@ -48,7 +49,6 @@ public class EchoService {
         User userEntity = userRepository.findById(user.getId())
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + user.getId()));
 
-        // 1. Create Echo
         Echo echo = Echo.builder()
                 .user(userEntity)
                 .title(request.getTitle())
@@ -120,7 +120,14 @@ public class EchoService {
 
         savedEcho.setMediaList(mediaList);
 
-        // 4. Map → Response DTO
+        if(echo.isCapsule()){
+            missionService.handleEvent(MissionEventType.CAPSULE_CREATED,user);
+        } else {
+            missionService.handleEvent( MissionEventType.ECHO_CREATED,user);
+        }
+
+
+
         return mapToResponse(savedEcho);
     }
 
@@ -342,4 +349,19 @@ public class EchoService {
     }
 
 
+    public long countCreatedEchoByUserId(Long userId, boolean isCapsule) {
+        return echoRepository.countByUser_IdAndCapsule(userId,isCapsule);
+    }
+
+    public long countUnlockedEchoByUserId(Long userId) {
+        return echoUnLockRepository.countDistinctUnlockedEchoes(userId);
+    }
+
+    public long countLikedEchoByUserId(Long userId) {
+        return likeRepository.countByUser_Id(userId);
+    }
+
+    public long countCommentedEchoByUserId(Long userId) {
+        return commentRepository.countByUser_Id(userId);
+    }
 }

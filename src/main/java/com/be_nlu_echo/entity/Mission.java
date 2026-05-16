@@ -38,9 +38,7 @@ public class Mission {
     private String description;
 
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, length = 30)
-    private MissionType type;
+
 
     // Tab UI: DAILY, EXPLORATION, CREATE, CAPSULE, ACHIEVEMENT
     @Enumerated(EnumType.STRING)
@@ -72,11 +70,15 @@ public class Mission {
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status")
     private MissionStatus status = MissionStatus.ACTIVE;
 
     @Column(name = "start_at")
     private LocalDateTime startAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "progress_strategy",nullable = false)
+    private MissionProgressStrategy progressStrategy = MissionProgressStrategy.INCREMENT;
 
     @Column(name = "end_at")
     private LocalDateTime endAt;

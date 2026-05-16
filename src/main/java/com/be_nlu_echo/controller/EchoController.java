@@ -11,6 +11,7 @@ import com.be_nlu_echo.enums.StatusCode;
 import com.be_nlu_echo.repository.LikeRepository;
 import com.be_nlu_echo.repository.UserRepository;
 import com.be_nlu_echo.service.EchoService;
+import com.be_nlu_echo.service.MissionService;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,9 @@ import java.util.List;
 @AllArgsConstructor
 public class EchoController {
 
-    private final EchoService echoService;
+     EchoService echoService;
+
+
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<EchoListItemResponse>>> getAllEchos() {
@@ -42,8 +45,8 @@ public class EchoController {
     public ResponseEntity<ApiResponse<CreateEchoResponse>> createEcho(
             @RequestBody RequestCreateEcho request
     ) {
-        CreateEchoResponse response =
-                echoService.createEcho(request, User.builder().id(5L).build());
+
+        CreateEchoResponse response = echoService.createEcho(request, User.builder().id(5L).build());
 
         return ResponseEntity.ok(
                 new ApiResponse<>(

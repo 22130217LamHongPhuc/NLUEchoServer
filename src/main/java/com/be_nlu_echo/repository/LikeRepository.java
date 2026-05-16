@@ -13,4 +13,6 @@ public interface LikeRepository extends JpaRepository<EchoLike, Long> {
             WHERE el.user.id = :userId
         """)
     long countLikedEchoesByUserId(Long userId);
+
+    long countByUser_Id(Long userId);
 }
